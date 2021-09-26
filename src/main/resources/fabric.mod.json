@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "myth-mod-template",
+  "version": "0.1.0",
+  "name": "Myth Mod Template",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "LGPLv2.1",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "dev.themyth.fabric_mod_template.client.ClientInitializer"
+    ],
+    "main": [
+      "dev.themyth.fabric_mod_template.MainInitializer"
+    ]
+  },
+  "mixins": [
+    "fabric_mod_template.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.11.6",
+    "minecraft": "1.17.1"
+  }
+}
