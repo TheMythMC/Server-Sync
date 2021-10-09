@@ -1,25 +1,23 @@
 {
   "schemaVersion": 1,
-  "id": "myth-mod-template",
+  "id": "server-sync",
   "version": "0.1.0",
-  "name": "Myth Mod Template",
-  "description": "",
-  "authors": [],
+  "name": "Server-Sync",
+  "description": "Syncs a Minecraft server with a Discord server",
+  "authors": ["TheMythMC","Mythbusters123"],
   "contact": {},
-  "license": "LGPLv2.1",
+  "license": "MIT",
   "environment": "*",
   "entrypoints": {
-    "client": [
-      "dev.themyth.fabric_mod_template.client.ClientInitializer"
-    ],
     "main": [
-      "dev.themyth.fabric_mod_template.MainInitializer"
+      "dev.themyth.server_sync.ServerSync"
     ]
   },
   "mixins": [
-    "fabric_mod_template.mixins.json"
+    "server_sync.mixins.json"
   ],
   "depends": {
+    "fabric": "*",
     "fabricloader": ">=0.11.6",
     "minecraft": "1.17.1"
   }

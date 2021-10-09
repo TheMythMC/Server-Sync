@@ -1,6 +1,7 @@
 plugins {
     id 'fabric-loom' version '0.10-SNAPSHOT'
     id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 version = project.mod_version
@@ -12,7 +13,14 @@ repositories {
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
-    maven { url 'https://jitpack.io' }
+    mavenCentral()
+    maven {
+        name 'm2-dv8tion'
+        url 'https://m2.dv8tion.net/releases'
+    }
+    maven {
+        url 'https://maven.shedaniel.me'
+    }
 }
 
 dependencies {
@@ -24,14 +32,27 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    // config API (should really be in every mod tbh)
-    implementation "com.github.TheElectronWill:Night-Config:v${project.night_config_version}"
-    include "com.github.TheElectronWill:Night-Config:v${project.night_config_version}"
-    // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
-    // You may need to force-disable transitiveness on them.
-    
-    // Used for configs, I want it anyway
-    implementation 'com.github.TheElectronWill:Night-Config:Tag'
+    include(modApi("me.sargunvohra.mcmods:autoconfig1u:3.3.1")) {
+        exclude group: "net.fabricmc.fabric-api", module: "fabric-api"
+    }
+    include(modApi("me.shedaniel.cloth:cloth-config-fabric:5.0.34")) {
+        exclude group: "net.fabricmc.fabric-api", module: "fabric-api"
+    }
+
+    // discord wrapper
+    implementation 'com.discord4j:discord4j-core:3.2.0'
+    include "com.discord4j:discord4j-core:3.2.0"
+    include "com.discord4j:discord4j-common:3.2.0"
+    include "com.discord4j:discord4j-gateway:3.2.0"
+    include "com.discord4j:discord4j-rest:3.2.0"
+    include "com.discord4j:discord4j-voice:3.2.0"
+    include "com.discord4j:discord-json:1.6.10"
+    include "com.discord4j:discord-json-api:1.6.10"
+    include "com.discord4j:simple-fsm:1.0.1"
+    include "com.discord4j:stores-api:3.2.1"
+    include "com.discord4j:stores-jdk"
+
+
 }
 
 processResources {
@@ -71,6 +92,7 @@ jar {
     from("LICENSE") {
         rename { "${it}_${project.archivesBaseName}" }
     }
+    finalizedBy "shadowJar"
 }
 
 // configure the maven publication
@@ -94,4 +116,9 @@ publishing {
         // The repositories here will be used for publishing your artifact, not for
         // retrieving dependencies.
     }
+
+}
+shadowJar {
+    relocate 'io.netty', 'com.discord4j.shaded.io.netty'
+    relocate 'com.fasterxml', 'com.discord4j.shaded.com.fasterxml'
 }
