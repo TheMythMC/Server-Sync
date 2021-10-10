@@ -5,6 +5,8 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.channel.Channel;
+import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.WebhookExecuteSpec;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -30,8 +32,11 @@ public class DiscordMain {
         gatewayDiscordClient.on(MessageCreateEvent.class).subscribe(event -> ServerSync.sendServerMessage(event.getMessage().getContent()));
     }
     public void sendMessage(String message) {
-        client.getChannelById(Snowflake.of((Long) ServerSync.config.channelID)).createMessage(message).block();
-
+        final Channel channel = gatewayDiscordClient.getChannelById(Snowflake.of(ServerSync.config.channelID)).block();
+        if (channel == null) return;
+        if(channel.getType() == Channel.Type.GUILD_TEXT) {
+            channel.getRestChannel().createMessage(message);
+        }
     }
     public Optional<Text> sendWebhookMessage(ServerPlayerEntity player, String message) {
 

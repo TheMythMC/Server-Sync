@@ -1,7 +1,6 @@
 plugins {
     id 'fabric-loom' version '0.10-SNAPSHOT'
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 version = project.mod_version
@@ -40,7 +39,9 @@ dependencies {
     }
 
     // discord wrapper
+
     implementation 'com.discord4j:discord4j-core:3.2.0'
+    /*
     include "com.discord4j:discord4j-core:3.2.0"
     include "com.discord4j:discord4j-common:3.2.0"
     include "com.discord4j:discord4j-gateway:3.2.0"
@@ -50,8 +51,12 @@ dependencies {
     include "com.discord4j:discord-json-api:1.6.10"
     include "com.discord4j:simple-fsm:1.0.1"
     include "com.discord4j:stores-api:3.2.1"
-    include "com.discord4j:stores-jdk"
-
+    include 'com.discord4j:stores-jdk:3.2.1'
+    include 'com.fasterxml.jackson.core:jackson-annotations:2.12.4'
+    include 'com.fasterxml.jackson.core:jackson-core:2.12.4'
+    include 'com.fasterxml.jackson.core:jackson-databind:2.12.4'
+    include 'com.fasterxml.jackson.datatype:jackson-dataype-jdk8:2.12.4'
+    include 'com.github.ben-manes.caffeine:caffeine:2.8.8' */
 
 }
 
@@ -65,6 +70,7 @@ processResources {
 }
 
 def targetJavaVersion = 16
+def sourceJavaVersion = 16
 tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly
@@ -92,7 +98,7 @@ jar {
     from("LICENSE") {
         rename { "${it}_${project.archivesBaseName}" }
     }
-    finalizedBy "shadowJar"
+    // finalizedBy "shadowJar"
 }
 
 // configure the maven publication
@@ -117,8 +123,4 @@ publishing {
         // retrieving dependencies.
     }
 
-}
-shadowJar {
-    relocate 'io.netty', 'com.discord4j.shaded.io.netty'
-    relocate 'com.fasterxml', 'com.discord4j.shaded.com.fasterxml'
 }
