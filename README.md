@@ -4,7 +4,9 @@ A Fabric mod that syncs your Minecraft server with your Discord server!
 ## Using
 Everything can be done using the `/set` command  
 The main things that you MUST set are `bot_token` and `channel_id`
-You can then configure `discord_sends_messages` if you want to
+You can then configure `members_send_messages` if you want to.  
+### I want to edit the file manually, why is it JSON5? How do I open it?  
+You can open this file using a normal text editor, however it is JSON5 because you can see exactly what you are changing.  
 
 ## Installation
 1. Download and install [MultiMC](https://multimc.org/#Download) if you haven't already.
