@@ -1,6 +1,10 @@
+import net.fabricmc.loom.task.RemapJarTask
+
 plugins {
     id 'fabric-loom' version '0.10-SNAPSHOT'
     id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
+    id 'java'
 }
 
 version = project.mod_version
@@ -40,23 +44,13 @@ dependencies {
 
     // discord wrapper
 
-    implementation 'com.discord4j:discord4j-core:3.2.0'
-    /*
-    include "com.discord4j:discord4j-core:3.2.0"
-    include "com.discord4j:discord4j-common:3.2.0"
-    include "com.discord4j:discord4j-gateway:3.2.0"
-    include "com.discord4j:discord4j-rest:3.2.0"
-    include "com.discord4j:discord4j-voice:3.2.0"
-    include "com.discord4j:discord-json:1.6.10"
-    include "com.discord4j:discord-json-api:1.6.10"
-    include "com.discord4j:simple-fsm:1.0.1"
-    include "com.discord4j:stores-api:3.2.1"
-    include 'com.discord4j:stores-jdk:3.2.1'
-    include 'com.fasterxml.jackson.core:jackson-annotations:2.12.4'
-    include 'com.fasterxml.jackson.core:jackson-core:2.12.4'
-    include 'com.fasterxml.jackson.core:jackson-databind:2.12.4'
-    include 'com.fasterxml.jackson.datatype:jackson-dataype-jdk8:2.12.4'
-    include 'com.github.ben-manes.caffeine:caffeine:2.8.8' */
+    modImplementation 'com.discord4j:discord4j-core:3.2.0'
+    /**
+     * This needs to be only implementation when running a production build, otherwise it needs to be modImplementation to
+     * work in dev env i think.
+     */
+    // implementation 'com.discord4j:discord4j-core:3.2.0'
+    shadow 'com.discord4j:discord4j-core:3.2.0'
 
 }
 
@@ -82,6 +76,11 @@ tasks.withType(JavaCompile).configureEach {
     }
 }
 
+compileJava {
+    sourceCompatibility = '16'
+    targetCompatibility = '16'
+}
+
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     if (JavaVersion.current() < javaVersion) {
@@ -93,12 +92,25 @@ java {
     // If you remove this line, sources will not be generated.
     withSourcesJar()
 }
+/** DONT TOUCH THIS
+ *  IT LOOKS LIKE ITS NOT BEING USED BUT DONT TAKE THE CHANCE
+ *  I TRUST YOU
+ */
+task remapShadowJar(type: RemapJarTask) {
+    dependsOn shadowJar
+    input = shadowJar.archiveFile
+    addNestedDependencies.set(true)
+}
+
+build {
+    dependsOn remapShadowJar
+}
 
 jar {
     from("LICENSE") {
         rename { "${it}_${project.archivesBaseName}" }
     }
-    // finalizedBy "shadowJar"
+    finalizedBy "shadowJar"
 }
 
 // configure the maven publication
@@ -123,4 +135,19 @@ publishing {
         // retrieving dependencies.
     }
 
+}
+
+shadowJar {
+    destinationDirectory = file("${buildDir}/tmp/allJar")
+    configurations = [project.configurations.shadow]
+    relocate 'io.netty', 'shaded.io.netty'
+
+    //Exclude META-INF entries of shaded deps
+    exclude 'META-INF/**'
+    from('.') {
+        include 'LICENSE.md'
+        include 'NOTICE.txt'
+        include 'licenses/**'
+    }
+    minimize()
 }

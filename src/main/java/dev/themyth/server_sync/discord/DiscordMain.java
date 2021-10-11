@@ -16,16 +16,14 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class DiscordMain {
-    // this is needed for webhooks
-    HttpClient hClient = HttpClient.newHttpClient();
 
-    public static DiscordMain DISCORD_CLIENT = new DiscordMain();
+    public static DiscordMain DISCORD_CLIENT;
     public final DiscordClient client;
     public final GatewayDiscordClient gatewayDiscordClient;
 
-    public DiscordMain() {
+    public DiscordMain() throws Exception {
         client = DiscordClient.create(ServerSync.config.token);
-         gatewayDiscordClient = client.gateway().login().block();
+        gatewayDiscordClient = client.gateway().login().block();
     }
 
     public void registerChannelListener() {
