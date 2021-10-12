@@ -1,5 +1,6 @@
 package dev.themyth.server_sync;
 
+import dev.themyth.server_sync.commands.ReloadConfigs;
 import dev.themyth.server_sync.commands.SetCommand;
 import dev.themyth.server_sync.discord.DiscordMain;
 import dev.themyth.server_sync.events.*;
@@ -34,21 +35,24 @@ public class ServerSync implements ModInitializer {
     public void onInitialize() {
         AutoConfig.register(Configuration.class, JanksonConfigSerializer::new);
         config = AutoConfig.getConfigHolder(Configuration.class).getConfig();
-        if (FabricLoader.getInstance().getEnvironmentType() != EnvType.SERVER) throw new IllegalStateException("Server-Sync can only be installed on server");
+        if (FabricLoader.getInstance().getEnvironmentType() != EnvType.SERVER) throw new IllegalCallerException("Server-Sync can only be installed on server");
         CommandRegistrationCallback.EVENT.register(
-                (dispatcher, dedicated) -> new SetCommand().register(dispatcher)
+                (dispatcher, dedicated) -> {
+                    new SetCommand().register(dispatcher);
+                    new ReloadConfigs().register(dispatcher);
+                }
         );
         // Discord stuff here
         initDiscord();
     }
 
     public static void sendServerMessage(String message) {
+        if (SERVER_INSTANCE != null)
         SERVER_INSTANCE.getPlayerManager().broadcastChatMessage(new LiteralText(message), MessageType.SYSTEM, Util.NIL_UUID);
     }
 
-    public Text initDiscord() {
-        try
-        {
+    public static Text initDiscord() {
+        try {
             DiscordMain.DISCORD_CLIENT = new DiscordMain();
             DiscordMain.DISCORD_CLIENT.registerChannelListener();
             ServerLifecycleEvents.SERVER_STARTING.register(e -> DiscordMain.DISCORD_CLIENT.sendMessage("**Server Starting!**"));
@@ -66,28 +70,10 @@ public class ServerSync implements ModInitializer {
                     case CHALLENGE -> DiscordMain.DISCORD_CLIENT.sendMessage("**" + playerEntity.getName().asString() + " has made completed the challenge [" + advancement.getDisplay().getTitle().asString() + "]**");
                 }
             }));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error("There has been an error with your Discord configurations. Make sure they are correct and restart");
             return new LiteralText("There has been an error with your Discord configurations. Make sure they are correct and restart").formatted(Formatting.RED);
         }
         return new LiteralText("Success!").formatted(Formatting.GREEN);
     }
-
-    static {
-        Path configPath = Paths.get("config/server_sync.json");
-        if (!configPath.toFile().exists()) {
-            try {
-                configPath.toFile().createNewFile();
-                BufferedWriter bw = new BufferedWriter(
-                    new FileWriter(configPath.toFile())
-                );
-                bw.write("{}");
-                bw.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 }

@@ -92,7 +92,8 @@ java {
     // If you remove this line, sources will not be generated.
     withSourcesJar()
 }
-/** DONT TOUCH THIS
+/**
+ * DONT TOUCH THIS
  *  IT LOOKS LIKE ITS NOT BEING USED BUT DONT TAKE THE CHANCE
  *  I TRUST YOU
  */
@@ -133,6 +134,7 @@ publishing {
         // Notice: This block does NOT have the same function as the block in the top level.
         // The repositories here will be used for publishing your artifact, not for
         // retrieving dependencies.
+        // mavenLocal()
     }
 
 }
